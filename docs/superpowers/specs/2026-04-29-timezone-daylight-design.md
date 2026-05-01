@@ -20,7 +20,7 @@
 
 1. Пользователь открывает сайт.
 2. Выбирает регион из выпадающего списка (в MVP — только Кировская область).
-3. Задаёт время подъёма (по умолчанию 06:00, диапазон 04:00–10:00). Время сна фиксировано — 8 часов, поэтому окно бодрствования всегда ровно 16 часов.
+3. Задаёт **длительность сна** (по умолчанию 8 часов, диапазон 8–10 часов с шагом 30 минут — то есть 5 точек: 8.0, 8.5, 9.0, 9.5, 10.0) и **время подъёма** (по умолчанию 06:00, диапазон 04:00–10:00). Окно бодрствования вычисляется как `24h − sleepHours` (от 14 до 16 часов).
 4. Выбирает период анализа: год или конкретный квартал.
 5. Видит:
    - **Сейчас** — суммарные световые часы в окне бодрствования за период.
@@ -39,8 +39,10 @@
 |---|---|
 | Координаты центра региона (широта, долгота) | Справочник `RegionCatalog` |
 | Часовой пояс региона (IANA) | Справочник `RegionCatalog`. Для Кирова: `Europe/Kirov` (UTC+3) |
-| Время подъёма | Параметр пользователя, диапазон 04:00–10:00 |
-| Время засыпания | Вычисляется: `wakeTime + 16 часов` |
+| Время подъёма | Параметр пользователя, диапазон 04:00–10:00, шаг 15 мин |
+| Длительность сна | Параметр пользователя, диапазон 8–10 часов, шаг 30 мин (по умолчанию 8) |
+| Длительность окна бодрствования | Вычисляется: `24h − sleepHours` (от 14 до 16 часов) |
+| Время засыпания | Вычисляется: `wakeTime + (24h − sleepHours)` |
 | Сдвиг часового пояса для гипотезы | По умолчанию +1 час |
 | Период | Год целиком или один из четырёх кварталов |
 
@@ -48,7 +50,8 @@
 
 ```
 sunrise, sunset  ← SunCalcNet(date, lat, lon) с конвертацией в локальный TZ
-window           = [wakeTime, sleepTime]   // длина 16 часов
+sleepTime        = wakeTime + (24h − sleepHours)
+window           = [wakeTime, sleepTime]                  // длина 14–16 часов
 daylightMinutes  = |[sunrise, sunset] ∩ window|
 ```
 
@@ -69,12 +72,13 @@ delta            = shiftedDaylight − currentDaylight
 
 ### 3.4 Оптимальное окно бодрствования
 
-Длительность окна жёстко 16 часов. Перебираем не сам сдвиг, а саму допустимую координату `optimal_wake` ∈ [04:00, 10:00] с шагом 15 минут (всего 25 точек). Для каждого кандидата считаем сумму световых минут за период. Возвращаем тот, что даёт максимум:
+При оптимизации **длительность окна сохраняется** — то есть если пользователь спит 9 часов, оптимизатор тоже работает с 15-часовым окном. Перебираем допустимую координату `optimal_wake` ∈ [04:00, 10:00] с шагом 15 минут (всего 25 точек). Для каждого кандидата считаем сумму световых минут за период. Возвращаем тот, что даёт максимум:
 
 ```
-optimal_wake  = argmax_w∈[04:00..10:00 step 15min]
-                 [ sum_over_period(daylight_in([w, w + 16h])) ]
-optimal_sleep = optimal_wake + 16h
+windowDuration = 24h − sleepHours
+optimal_wake   = argmax_w∈[04:00..10:00 step 15min]
+                  [ sum_over_period(daylight_in([w, w + windowDuration])) ]
+optimal_sleep  = optimal_wake + windowDuration
 ```
 
 Если максимум достигается на одной из границ диапазона (`04:00` или `10:00`), в результат добавляется флаг `clampedToBounds: true` — это сигнал UI отметить, что «настоящий» оптимум, возможно, лежит за пределами разрешённой зоны.
@@ -96,7 +100,7 @@ optimal_sleep = optimal_wake + 16h
 {
   "region": { "id": "kirov", "name": "Кировская область", "latitude": 58.6035, "longitude": 49.668, "timeZone": "Europe/Kirov" },
   "period": { "type": "year", "year": 2026, "quarter": null, "startDate": "2026-01-01", "endDate": "2026-12-31" },
-  "wakeWindow": { "wakeTime": "06:00", "sleepTime": "22:00" },
+  "wakeWindow": { "wakeTime": "06:00", "sleepTime": "22:00", "sleepHours": 8.0 },
   "shiftHours": 1,
   "current":  { "totalDaylightMinutes": 24720, "avgDaylightPerDay": 67 },
   "shifted":  { "totalDaylightMinutes": 28680, "avgDaylightPerDay": 78 },
@@ -154,7 +158,7 @@ src/NoSleepOnDay.Api/
 │   └── DaylightController.cs             ← GET /api/daylight/analysis
 ├── Domain/
 │   ├── Region.cs                         ← record(Id, Name, Latitude, Longitude, TimeZone)
-│   ├── WakeWindow.cs                     ← record(WakeTime); SleepTime = WakeTime + 16h
+│   ├── WakeWindow.cs                     ← record(WakeTime, SleepHours); SleepTime = WakeTime + (24h − SleepHours)
 │   ├── DateRange.cs                      ← год или квартал → [start, end]
 │   ├── DaylightSeriesPoint.cs            ← record(Date, CurrentMinutes, ShiftedMinutes)
 │   └── AnalysisResult.cs                 ← полный отчёт (см. 3.6)
@@ -190,6 +194,7 @@ AnalysisResult Analyze(
     int year,
     int? quarter,
     TimeOnly wakeTime,
+    double sleepHours,            // 8.0..10.0 step 0.5
     int shiftHours);
 ```
 
@@ -205,7 +210,8 @@ GET /api/daylight/analysis
       periodType     (required, "year" | "quarter")
       year           (required, int)
       quarter        (required, если periodType=quarter; 1..4)
-      wakeTime       (optional, "HH:mm", default "06:00", range 04:00–10:00)
+      wakeTime       (optional, "HH:mm", default "06:00", range 04:00–10:00, шаг 15 мин)
+      sleepHours     (optional, decimal, default 8.0, range 8.0–10.0, шаг 0.5)
       shiftHours     (optional, int, default 1)
     → 200 OK AnalysisResult (см. 3.6)
     → 400 Bad Request ProblemDetails (если параметры невалидны)
@@ -236,7 +242,8 @@ src/no-sleep-on-day-web/
     ├── features/dashboard/
     │   ├── dashboard.page.ts                  ← главная страница
     │   ├── region-selector/
-    │   ├── wake-time-picker/                  ← диапазон 04:00–10:00
+    │   ├── wake-time-picker/                  ← диапазон 04:00–10:00, шаг 15 мин
+    │   ├── sleep-duration-picker/             ← 8.0–10.0 ч, шаг 0.5
     │   ├── period-selector/                   ← год / квартал
     │   ├── summary-cards/                     ← карточки «Сейчас / +1 час / Разница»
     │   ├── daylight-chart/                    ← линейный график
@@ -250,7 +257,7 @@ src/no-sleep-on-day-web/
 ┌──────────────────────────────────────────────────────────────┐
 │  [Заголовок и тезис: «Россия живёт в неудобном времени»]      │
 ├──────────────────────────────────────────────────────────────┤
-│  [Регион ▼]  [Подъём: 06:00 ▼]  [Период: Год ▼]              │
+│  [Регион ▼] [Подъём: 06:00 ▼] [Сон: 8 ч ▼] [Период: Год ▼]    │
 ├──────────────────────────────────────────────────────────────┤
 │  ┌───────────┐ ┌───────────┐ ┌───────────┐                   │
 │  │ Сейчас    │ │ Если +1ч  │ │ Разница   │                   │
@@ -348,7 +355,6 @@ d:\projects\noSleepOnDay\
 - Все регионы России (сейчас только Кировская область).
 - Интерактивная карта России для выбора региона.
 - Геолокация и автоопределение региона.
-- Конфигурируемая длительность сна (зафиксирована 8 часов).
 - Сохранение предпочтений пользователя (требует БД и/или auth).
 - Социальные шеры результатов.
 - Английская локализация.
