@@ -1,127 +1,106 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { JsonPipe, NgIf } from '@angular/common';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { debounceTime, map, of, startWith, switchMap, tap } from 'rxjs';
+import { catchError, debounceTime, map, of, startWith, switchMap, tap } from 'rxjs';
 import { RegionsService } from '../../core/api/regions.service';
 import { DaylightService } from '../../core/api/daylight.service';
 import { Region } from '../../core/models/region';
-import { AnalysisRequest, AnalysisResult, PeriodTypeLiteral } from '../../core/models/analysis';
-
-interface DashboardState {
-  regionId: string | null;
-  wakeTime: string;
-  sleepHours: number;
-  periodType: PeriodTypeLiteral;
-  year: number;
-  quarter: number;
-  shiftHours: number;
-}
+import { AnalysisRequest, AnalysisResult } from '../../core/models/analysis';
+import { RegionSelectorComponent } from './controls/region-selector.component';
+import { WakeTimePickerComponent } from './controls/wake-time-picker.component';
+import { SleepDurationPickerComponent } from './controls/sleep-duration-picker.component';
+import {
+  PeriodSelection,
+  PeriodSelectorComponent,
+} from './controls/period-selector.component';
+import { SummaryCardsComponent } from './summary-cards/summary-cards.component';
+import { DaylightChartComponent } from './daylight-chart/daylight-chart.component';
+import { OptimalScheduleCardComponent } from './optimal-schedule/optimal-schedule-card.component';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [JsonPipe, NgIf],
-  template: `
-    <main style="max-width: 960px; margin: 0 auto; padding: 2rem;">
-      <h1>No Sleep On Day — dashboard skeleton</h1>
-
-      <section *ngIf="regions() as r" style="margin-bottom: 1rem;">
-        <p>Регионов в каталоге: {{ r.length }} ({{ r[0]?.name }})</p>
-      </section>
-
-      <section style="background: var(--color-surface); padding: 1rem; border-radius: 12px;">
-        <h2>Параметры запроса</h2>
-        <pre>{{ requestPreview() | json }}</pre>
-      </section>
-
-      <section
-        style="margin-top: 1rem; background: var(--color-surface); padding: 1rem; border-radius: 12px;"
-      >
-        <h2>Ответ /api/daylight/analysis</h2>
-        <p *ngIf="isLoading()">⏳ загрузка…</p>
-        <p *ngIf="error() as e" style="color: #b00020">{{ e }}</p>
-        <pre *ngIf="analysisSummary() as s">{{ s | json }}</pre>
-      </section>
-    </main>
-  `,
+  imports: [
+    RegionSelectorComponent,
+    WakeTimePickerComponent,
+    SleepDurationPickerComponent,
+    PeriodSelectorComponent,
+    SummaryCardsComponent,
+    DaylightChartComponent,
+    OptimalScheduleCardComponent,
+  ],
+  templateUrl: './dashboard.page.html',
+  styleUrl: './dashboard.page.scss',
 })
 export class DashboardPage {
   private readonly regionsService = inject(RegionsService);
   private readonly daylightService = inject(DaylightService);
 
-  protected readonly state = signal<DashboardState>({
-    regionId: 'kirov',
-    wakeTime: '06:00',
-    sleepHours: 8,
-    periodType: 'year',
-    year: 2026,
-    quarter: 1,
-    shiftHours: 1,
-  });
-
   protected readonly regions = toSignal(this.regionsService.getAll(), {
     initialValue: [] as Region[],
   });
 
-  protected readonly requestPreview = computed<AnalysisRequest>(() => {
-    const s = this.state();
+  protected readonly regionId = signal<string | null>('kirov');
+  protected readonly wakeTime = signal<string>('06:00');
+  protected readonly sleepHours = signal<number>(8);
+  protected readonly period = signal<PeriodSelection>({
+    periodType: 'year',
+    year: 2026,
+    quarter: 1,
+  });
+
+  protected readonly analysis = signal<AnalysisResult | null>(null);
+  protected readonly isLoading = signal<boolean>(false);
+  protected readonly error = signal<string | null>(null);
+
+  protected readonly request = computed<AnalysisRequest | null>(() => {
+    const id = this.regionId();
+    if (!id) return null;
+    const p = this.period();
     return {
-      regionId: s.regionId ?? '',
-      periodType: s.periodType,
-      year: s.year,
-      quarter: s.periodType === 'quarter' ? s.quarter : undefined,
-      wakeTime: s.wakeTime,
-      sleepHours: s.sleepHours,
-      shiftHours: s.shiftHours,
+      regionId: id,
+      periodType: p.periodType,
+      year: p.year,
+      quarter: p.periodType === 'quarter' ? p.quarter : undefined,
+      wakeTime: this.wakeTime(),
+      sleepHours: this.sleepHours(),
+      shiftHours: 1,
     };
   });
 
-  protected readonly isLoading = signal(false);
-  protected readonly error = signal<string | null>(null);
-  protected readonly analysis = signal<AnalysisResult | null>(null);
-
-  protected readonly analysisSummary = computed(() => {
-    const a = this.analysis();
-    if (!a) return null;
-    return {
-      region: a.region.name,
-      period: `${a.period.startDate} → ${a.period.endDate} (${a.series.length} дн.)`,
-      currentTotalMinutes: a.current.totalDaylightMinutes,
-      shiftedTotalMinutes: a.shifted.totalDaylightMinutes,
-      deltaTotalMinutes: a.delta.totalGainMinutes,
-      optimalWake: a.optimal.wakeTime,
-      optimalAvgPerDay: a.optimal.avgDaylightPerDay,
-    };
+  protected readonly periodLabel = computed(() => {
+    const p = this.period();
+    if (p.periodType === 'year') return `${p.year} год`;
+    return `Q${p.quarter} ${p.year}`;
   });
 
   constructor() {
-    toObservable(this.requestPreview)
+    toObservable(this.request)
       .pipe(
         debounceTime(300),
         switchMap((request) => {
-          if (!request.regionId) {
+          if (!request) {
             return of({ kind: 'idle' as const });
           }
-          this.isLoading.set(true);
           this.error.set(null);
+          this.isLoading.set(true);
           return this.daylightService.analyze(request).pipe(
             map((result) => ({ kind: 'ok' as const, result })),
-            tap(() => this.isLoading.set(false)),
+            catchError((err: unknown) => {
+              const message = (err as { message?: string })?.message ?? 'Ошибка загрузки';
+              return of({ kind: 'error' as const, message });
+            }),
             startWith({ kind: 'loading' as const }),
           );
         }),
       )
-      .subscribe({
-        next: (event) => {
-          if (event.kind === 'ok') {
-            this.analysis.set(event.result);
-            this.isLoading.set(false);
-          }
-        },
-        error: (err) => {
+      .subscribe((event) => {
+        if (event.kind === 'ok') {
+          this.analysis.set(event.result);
           this.isLoading.set(false);
-          this.error.set(err?.message ?? 'Ошибка загрузки');
-        },
+        } else if (event.kind === 'error') {
+          this.error.set(event.message);
+          this.isLoading.set(false);
+        }
       });
   }
 }

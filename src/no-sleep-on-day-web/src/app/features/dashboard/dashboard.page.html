@@ -1,0 +1,36 @@
+<div class="page">
+  <header class="page__header">
+    <p class="page__eyebrow">Светлое утро уходит впустую</p>
+    <h1 class="page__title">Россия живёт в неудобном времени</h1>
+    <p class="page__lede">
+      Утром солнце уже взошло — а вы ещё спите. Вечером на улице уже темно — но ещё рано. Этот
+      калькулятор показывает, сколько световых минут вы теряете каждый день и сколько вернётся,
+      если ваш регион переведут на час вперёд.
+    </p>
+  </header>
+
+  <section class="filters">
+    <app-region-selector [regions]="regions()" [(value)]="regionId" />
+    <app-wake-time-picker [(value)]="wakeTime" />
+    <app-sleep-duration-picker [(value)]="sleepHours" />
+    <app-period-selector [(value)]="period" />
+  </section>
+
+  <section class="results">
+    <p class="results__period-label">{{ periodLabel() }}</p>
+
+    @if (isLoading() && !analysis()) {
+      <p class="results__loader">⏳ Считаем световые минуты…</p>
+    }
+
+    @if (error(); as e) {
+      <p class="results__error">⚠ {{ e }}</p>
+    }
+
+    @if (analysis(); as a) {
+      <app-summary-cards [analysis]="a" />
+      <app-daylight-chart [analysis]="a" />
+      <app-optimal-schedule-card [analysis]="a" />
+    }
+  </section>
+</div>
