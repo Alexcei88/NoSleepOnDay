@@ -43,8 +43,15 @@ public sealed class DaylightAnalysisService : IDaylightAnalysisService
             var shiftedMinutes = IntersectMinutes(
                 sunTimes.SunriseLocal, sunTimes.SunsetLocal,
                 shiftedStart, shiftedEnd);
+            var dayLengthMinutes = (int)Math.Round((sunTimes.SunsetLocal - sunTimes.SunriseLocal).TotalMinutes);
 
-            series.Add(new DaylightSeriesPoint(date, currentMinutes, shiftedMinutes));
+            series.Add(new DaylightSeriesPoint(
+                date,
+                TimeOnly.FromDateTime(sunTimes.SunriseLocal),
+                TimeOnly.FromDateTime(sunTimes.SunsetLocal),
+                dayLengthMinutes,
+                currentMinutes,
+                shiftedMinutes));
             totalCurrent += currentMinutes;
             totalShifted += shiftedMinutes;
         }

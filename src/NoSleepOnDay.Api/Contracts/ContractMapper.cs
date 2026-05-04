@@ -56,6 +56,9 @@ public static class ContractMapper
             result.Series
                 .Select(p => new DaylightSeriesPointDto(
                     p.Date.ToString(DateFormat),
+                    p.SunriseLocal.ToString(TimeFormat),
+                    p.SunsetLocal.ToString(TimeFormat),
+                    p.DayLengthMinutes,
                     p.CurrentMinutes,
                     p.ShiftedMinutes))
                 .ToList());

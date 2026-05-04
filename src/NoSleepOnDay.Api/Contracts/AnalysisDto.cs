@@ -41,5 +41,8 @@ public sealed record OptimalScheduleDto(
 
 public sealed record DaylightSeriesPointDto(
     string Date,
+    string SunriseLocal,
+    string SunsetLocal,
+    int DayLengthMinutes,
     int CurrentMinutes,
     int ShiftedMinutes);

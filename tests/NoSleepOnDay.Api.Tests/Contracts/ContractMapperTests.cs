@@ -39,7 +39,13 @@ public class ContractMapperTests
             new OptimalSchedule(new TimeOnly(6, 30), new TimeOnly(22, 30), 31200, 85, false),
             new[]
             {
-                new DaylightSeriesPoint(new DateOnly(2026, 1, 1), 32, 47),
+                new DaylightSeriesPoint(
+                    new DateOnly(2026, 1, 1),
+                    new TimeOnly(8, 30),
+                    new TimeOnly(16, 0),
+                    450,
+                    32,
+                    47),
             });
 
         var dto = result.ToDto();
@@ -57,6 +63,9 @@ public class ContractMapperTests
         dto.OptimalShifted.AvgDaylightPerDay.Should().Be(85);
         dto.Series.Should().HaveCount(1);
         dto.Series[0].Date.Should().Be("2026-01-01");
+        dto.Series[0].SunriseLocal.Should().Be("08:30");
+        dto.Series[0].SunsetLocal.Should().Be("16:00");
+        dto.Series[0].DayLengthMinutes.Should().Be(450);
         dto.Current.TotalDaylightMinutes.Should().Be(24720);
         dto.Delta.TotalGainMinutes.Should().Be(3960);
     }
