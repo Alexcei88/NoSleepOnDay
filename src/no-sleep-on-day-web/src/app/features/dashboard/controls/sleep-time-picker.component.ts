@@ -47,15 +47,12 @@ function buildOptions(wakeTime: string): Option[] {
   imports: [MatFormFieldModule, MatSelectModule],
   template: `
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Отбой</mat-label>
+      <mat-label>{{ label() }}</mat-label>
       <mat-select [value]="value()" (valueChange)="value.set($event)">
         @for (option of options(); track option.apiValue) {
           <mat-option [value]="option.apiValue">{{ option.label }}</mat-option>
         }
       </mat-select>
-      @if (sleepHoursLabel(); as h) {
-        <mat-hint>{{ h }}</mat-hint>
-      }
     </mat-form-field>
   `,
   styles: [
@@ -73,9 +70,9 @@ export class SleepTimePickerComponent {
 
   protected readonly options = computed(() => buildOptions(this.wakeTime()));
 
-  protected readonly sleepHoursLabel = computed(() => {
+  protected readonly label = computed(() => {
     const opt = this.options().find((o) => o.apiValue === this.value());
-    if (!opt) return null;
+    if (!opt) return 'Отбой';
     const wakeMinutes = parseWakeMinutes(this.wakeTime());
     const windowMinutes = opt.totalMinutes - wakeMinutes;
     const sleepMinutes = 24 * 60 - windowMinutes;
@@ -83,7 +80,7 @@ export class SleepTimePickerComponent {
     const formatted = Number.isInteger(hours)
       ? `${hours}`
       : hours.toFixed(1).replace('.', ',');
-    return `${formatted} ч сна`;
+    return `Отбой (${formatted} ч сна)`;
   });
 
   // При смене wakeTime коррекция: если текущий value вышел за допустимый диапазон —
