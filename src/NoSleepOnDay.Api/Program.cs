@@ -1,4 +1,5 @@
 using NoSleepOnDay.Api.Services;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,11 @@ app.UseStatusCodePages();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options.Title = "No Sleep On Day API";
+        options.Theme = ScalarTheme.BluePlanet;
+    });
     app.UseCors(AngularDevCorsPolicy);
 }
 
