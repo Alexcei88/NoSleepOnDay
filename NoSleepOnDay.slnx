@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NoSleepOnDay.Api/NoSleepOnDay.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NoSleepOnDay.Api.Tests/NoSleepOnDay.Api.Tests.csproj" />
+  </Folder>
+</Solution>
