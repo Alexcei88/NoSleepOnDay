@@ -8,7 +8,7 @@ interface ScheduleView {
   sleepTime: string;
   perDayLabel: string;
   gainLabel: string | null;
-  clamped: boolean;
+  clampNote: string | null;
 }
 
 @Component({
@@ -40,10 +40,8 @@ interface ScheduleView {
                   <span class="schedule__gain">({{ s.gainLabel }})</span>
                 }
               </p>
-              @if (s.clamped) {
-                <p class="schedule__warn">
-                  ⚠ упирается в разрешённый диапазон 04:00–10:00
-                </p>
+              @if (s.clampNote) {
+                <p class="schedule__warn">ℹ {{ s.clampNote }}</p>
               }
             </section>
           }
@@ -82,6 +80,22 @@ function buildView(
     gain === 0
       ? null
       : `${gain > 0 ? '+' : '−'}${Math.abs(gain)} мин/день к текущему`;
+
+  let clampNote: string | null = null;
+  if (schedule.clampedToBounds) {
+    if (schedule.wakeTime === '04:00') {
+      clampNote =
+        'Расписание упирается в нижнюю границу: ещё раньше предлагать не стали, ' +
+        '04:00 — самое раннее «социально нормальное» время. По астрономии было бы ' +
+        'ещё лучше встать раньше — но именно поэтому нужен сдвиг часового пояса.';
+    } else if (schedule.wakeTime === '10:00') {
+      clampNote =
+        'Расписание упирается в верхнюю границу: ещё позже предлагать не стали, ' +
+        '10:00 — самое позднее разумное время подъёма. По астрономии стоило бы вставать ' +
+        'ещё позже — а это значит, текущий часовой пояс уже сильно «опаздывает».';
+    }
+  }
+
   return {
     variant,
     title,
@@ -89,7 +103,7 @@ function buildView(
     sleepTime: schedule.sleepTime,
     perDayLabel,
     gainLabel,
-    clamped: schedule.clampedToBounds,
+    clampNote,
   };
 }
 
