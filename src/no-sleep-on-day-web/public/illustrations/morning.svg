@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" role="img" aria-label="Утро: солнце светит в окно, человек спит в кровати">
+  <defs>
+    <radialGradient id="sky-morning" cx="0.7" cy="0.3" r="0.9">
+      <stop offset="0%" stop-color="#FFE9B0"/>
+      <stop offset="60%" stop-color="#FBD27D"/>
+      <stop offset="100%" stop-color="#F4A300"/>
+    </radialGradient>
+    <radialGradient id="sun-glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="60%" stop-color="#FFE9B0" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#FFE9B0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FAF8F4"/>
+      <stop offset="100%" stop-color="#EFE8DA"/>
+    </linearGradient>
+    <linearGradient id="bed" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1E2A6E"/>
+      <stop offset="100%" stop-color="#3B4794"/>
+    </linearGradient>
+  </defs>
+
+  <!-- стена -->
+  <rect x="0" y="0" width="400" height="320" fill="url(#wall)"/>
+
+  <!-- окно -->
+  <rect x="50" y="40" width="200" height="160" rx="8" fill="url(#sky-morning)" stroke="#1F2329" stroke-width="3"/>
+  <line x1="150" y1="40" x2="150" y2="200" stroke="#1F2329" stroke-width="2.5" opacity="0.45"/>
+  <line x1="50" y1="120" x2="250" y2="120" stroke="#1F2329" stroke-width="2.5" opacity="0.45"/>
+
+  <!-- солнце с ореолом -->
+  <circle cx="205" cy="80" r="60" fill="url(#sun-glow)"/>
+  <circle cx="205" cy="80" r="22" fill="#FFFFFF"/>
+  <circle cx="205" cy="80" r="22" fill="#F4A300" opacity="0.5"/>
+
+  <!-- лучи солнца -->
+  <g stroke="#F4A300" stroke-width="3" stroke-linecap="round" opacity="0.85">
+    <line x1="205" y1="38" x2="205" y2="48"/>
+    <line x1="205" y1="112" x2="205" y2="122"/>
+    <line x1="163" y1="80" x2="173" y2="80"/>
+    <line x1="237" y1="80" x2="247" y2="80"/>
+    <line x1="175" y1="50" x2="182" y2="57"/>
+    <line x1="228" y1="103" x2="235" y2="110"/>
+    <line x1="175" y1="110" x2="182" y2="103"/>
+    <line x1="228" y1="57" x2="235" y2="50"/>
+  </g>
+
+  <!-- подоконник -->
+  <rect x="42" y="200" width="216" height="10" rx="2" fill="#D8D1C0" stroke="#1F2329" stroke-width="2"/>
+
+  <!-- солнечный луч из окна -->
+  <polygon points="80,200 220,200 380,300 250,300" fill="#FFE9B0" opacity="0.6"/>
+
+  <!-- кровать -->
+  <rect x="170" y="230" width="220" height="60" rx="8" fill="url(#bed)" stroke="#1F2329" stroke-width="3"/>
+  <!-- спинка -->
+  <rect x="380" y="200" width="14" height="100" rx="4" fill="#1E2A6E" stroke="#1F2329" stroke-width="3"/>
+
+  <!-- одеяло -->
+  <path d="M170,260 Q210,250 260,265 Q310,278 380,260 L380,290 Q310,294 260,288 Q210,283 170,290 Z" fill="#F4A300" stroke="#1F2329" stroke-width="2.5"/>
+
+  <!-- подушка -->
+  <rect x="178" y="240" width="60" height="22" rx="6" fill="#FAF8F4" stroke="#1F2329" stroke-width="2.5"/>
+
+  <!-- голова -->
+  <circle cx="208" cy="248" r="14" fill="#FFD9B5" stroke="#1F2329" stroke-width="2.5"/>
+  <!-- закрытый глаз -->
+  <path d="M201,247 Q204,250 207,247" stroke="#1F2329" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- маленькая улыбка -->
+  <path d="M199,254 Q204,258 209,254" stroke="#1F2329" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- z z z (спит) -->
+  <g fill="#5B626C" font-family="Manrope, sans-serif" font-weight="700" opacity="0.8">
+    <text x="240" y="232" font-size="14">z</text>
+    <text x="252" y="222" font-size="18">z</text>
+    <text x="268" y="208" font-size="22">Z</text>
+  </g>
+</svg>

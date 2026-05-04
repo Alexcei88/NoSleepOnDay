@@ -1,13 +1,5 @@
 <div class="page">
-  <header class="page__header">
-    <p class="page__eyebrow">Светлое утро уходит впустую</p>
-    <h1 class="page__title">Россия живёт в неудобном времени</h1>
-    <p class="page__lede">
-      Утром солнце уже взошло — а вы ещё спите. Вечером на улице уже темно — но ещё рано. Этот
-      калькулятор показывает, сколько световых минут вы теряете каждый день и сколько вернётся,
-      если ваш регион переведут на час вперёд.
-    </p>
-  </header>
+  <app-hero />
 
   <section class="filters">
     <app-region-selector [regions]="regions()" [(value)]="regionId" />
@@ -33,4 +25,11 @@
       <app-optimal-schedule-card [analysis]="a" />
     }
   </section>
+
+  <footer class="page__footer">
+    <p>
+      Расчёт ведётся локально на основе астрономических формул (библиотека SunCalcNet).
+      Без внешних API — все цифры детерминированы и воспроизводимы.
+    </p>
+  </footer>
 </div>

@@ -15,11 +15,13 @@ import {
 import { SummaryCardsComponent } from './summary-cards/summary-cards.component';
 import { DaylightChartComponent } from './daylight-chart/daylight-chart.component';
 import { OptimalScheduleCardComponent } from './optimal-schedule/optimal-schedule-card.component';
+import { HeroComponent } from './hero/hero.component';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
   imports: [
+    HeroComponent,
     RegionSelectorComponent,
     WakeTimePickerComponent,
     SleepDurationPickerComponent,
