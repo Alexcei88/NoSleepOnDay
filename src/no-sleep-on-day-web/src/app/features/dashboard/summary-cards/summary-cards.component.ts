@@ -24,7 +24,7 @@ import {
         />
         <app-summary-card
           accent="cool"
-          title="Если +1 час к часовому поясу"
+          [title]="shiftedTitle()"
           [value]="shiftedTotal().value"
           [unit]="shiftedTotal().unit"
           [subtitle]="shiftedPerDay()"
@@ -62,6 +62,11 @@ export class SummaryCardsComponent {
 
   protected readonly dayCount = computed(() => this.analysis().series.length);
 
+  protected readonly shiftedTitle = computed(() => {
+    const s = this.analysis().shiftHours;
+    return `Если ${formatShift(s)} к часовому поясу`;
+  });
+
   protected readonly currentTotal = computed(() =>
     formatTotalMinutes(this.analysis().current.totalDaylightMinutes, this.dayCount()),
   );
@@ -84,4 +89,9 @@ export class SummaryCardsComponent {
     const f = formatPerDayGain(this.analysis().delta.avgGainPerDay);
     return `≈ ${f.value} ${f.unit}`;
   });
+}
+
+function formatShift(hours: number): string {
+  const sign = hours > 0 ? '+' : '−';
+  return `${sign}${Math.abs(hours)} ч`;
 }

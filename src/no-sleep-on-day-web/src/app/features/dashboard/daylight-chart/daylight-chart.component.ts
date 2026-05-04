@@ -78,8 +78,10 @@ export class DaylightChartComponent {
   readonly analysis = input.required<AnalysisResult>();
 
   protected readonly chartData = computed<ChartConfiguration<'line'>['data']>(() => {
-    const series = this.analysis().series;
+    const a = this.analysis();
+    const series = a.series;
     const labels = series.map((p) => formatLabel(p.date, series.length));
+    const shiftLabel = formatShift(a.shiftHours);
 
     return {
       labels,
@@ -96,7 +98,7 @@ export class DaylightChartComponent {
           fill: false,
         },
         {
-          label: 'Если +1 час',
+          label: `Если ${shiftLabel}`,
           data: series.map((p) => p.shiftedMinutes),
           borderColor: '#f4a300',
           backgroundColor: 'rgba(244, 163, 0, 0.18)',
@@ -174,4 +176,9 @@ function formatLabel(isoDate: string, totalCount: number): string {
     return `${dd === 1 ? '1 ' : ''}${monthName}`;
   }
   return `${dd} ${monthName}`;
+}
+
+function formatShift(hours: number): string {
+  const sign = hours > 0 ? '+' : '−';
+  return `${sign}${Math.abs(hours)} ч`;
 }

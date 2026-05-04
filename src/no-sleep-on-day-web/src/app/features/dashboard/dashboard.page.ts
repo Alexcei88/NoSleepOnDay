@@ -8,7 +8,11 @@ import { Region } from '../../core/models/region';
 import { AnalysisRequest, AnalysisResult } from '../../core/models/analysis';
 import { RegionSelectorComponent } from './controls/region-selector.component';
 import { WakeTimePickerComponent } from './controls/wake-time-picker.component';
-import { SleepDurationPickerComponent } from './controls/sleep-duration-picker.component';
+import { SleepTimePickerComponent } from './controls/sleep-time-picker.component';
+import {
+  ShiftHours,
+  ShiftSelectorComponent,
+} from './controls/shift-selector.component';
 import {
   PeriodSelection,
   PeriodSelectorComponent,
@@ -25,7 +29,8 @@ import { HeroComponent } from './hero/hero.component';
     HeroComponent,
     RegionSelectorComponent,
     WakeTimePickerComponent,
-    SleepDurationPickerComponent,
+    SleepTimePickerComponent,
+    ShiftSelectorComponent,
     PeriodSelectorComponent,
     SummaryCardsComponent,
     DaylightChartComponent,
@@ -44,7 +49,8 @@ export class DashboardPage {
 
   protected readonly regionId = signal<string | null>('kirov');
   protected readonly wakeTime = signal<string>('06:00');
-  protected readonly sleepHours = signal<number>(8);
+  protected readonly sleepTime = signal<string>('22:00');
+  protected readonly shiftHours = signal<ShiftHours>(1);
   protected readonly period = signal<PeriodSelection>({
     periodType: 'year',
     year: 2026,
@@ -54,6 +60,14 @@ export class DashboardPage {
   protected readonly analysis = signal<AnalysisResult | null>(null);
   protected readonly isLoading = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
+
+  protected readonly sleepHours = computed(() => {
+    const wakeMinutes = parseHHmm(this.wakeTime());
+    const sleepRaw = parseHHmm(this.sleepTime());
+    const sleepEffective = sleepRaw <= wakeMinutes ? sleepRaw + 24 * 60 : sleepRaw;
+    const windowMinutes = sleepEffective - wakeMinutes;
+    return (24 * 60 - windowMinutes) / 60;
+  });
 
   protected readonly request = computed<AnalysisRequest | null>(() => {
     const id = this.regionId();
@@ -66,7 +80,7 @@ export class DashboardPage {
       quarter: p.periodType === 'quarter' ? p.quarter : undefined,
       wakeTime: this.wakeTime(),
       sleepHours: this.sleepHours(),
-      shiftHours: 1,
+      shiftHours: this.shiftHours(),
     };
   });
 
@@ -103,6 +117,11 @@ export class DashboardPage {
         }
       });
   }
+}
+
+function parseHHmm(value: string): number {
+  const [h, m] = value.split(':').map(Number);
+  return h * 60 + m;
 }
 
 function toUserMessage(err: unknown): string {

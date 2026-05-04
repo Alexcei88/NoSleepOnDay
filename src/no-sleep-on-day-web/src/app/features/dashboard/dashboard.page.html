@@ -4,8 +4,9 @@
   <section class="filters">
     <app-region-selector [regions]="regions()" [(value)]="regionId" />
     <app-wake-time-picker [(value)]="wakeTime" />
-    <app-sleep-duration-picker [(value)]="sleepHours" />
+    <app-sleep-time-picker [wakeTime]="wakeTime()" [(value)]="sleepTime" />
     <app-period-selector [(value)]="period" />
+    <app-shift-selector [(value)]="shiftHours" />
   </section>
 
   <section class="results">
