@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, debounceTime, map, of, startWith, switchMap, tap } from 'rxjs';
+import { catchError, debounceTime, map, of, startWith, switchMap } from 'rxjs';
 import { RegionsService } from '../../core/api/regions.service';
 import { DaylightService } from '../../core/api/daylight.service';
 import { Region } from '../../core/models/region';
@@ -87,10 +88,7 @@ export class DashboardPage {
           this.isLoading.set(true);
           return this.daylightService.analyze(request).pipe(
             map((result) => ({ kind: 'ok' as const, result })),
-            catchError((err: unknown) => {
-              const message = (err as { message?: string })?.message ?? 'Ошибка загрузки';
-              return of({ kind: 'error' as const, message });
-            }),
+            catchError((err: unknown) => of({ kind: 'error' as const, message: toUserMessage(err) })),
             startWith({ kind: 'loading' as const }),
           );
         }),
@@ -105,4 +103,21 @@ export class DashboardPage {
         }
       });
   }
+}
+
+function toUserMessage(err: unknown): string {
+  if (err instanceof HttpErrorResponse) {
+    if (err.status === 0) {
+      return 'Сервер не отвечает. Проверь, что бэкенд запущен.';
+    }
+    if (err.status === 400) {
+      const detail = (err.error as { detail?: string })?.detail;
+      return detail ?? 'Параметры запроса некорректны.';
+    }
+    if (err.status === 404) {
+      return 'Запрошенный регион отсутствует в каталоге.';
+    }
+    return `Ошибка сервера (HTTP ${err.status}).`;
+  }
+  return 'Не удалось загрузить данные.';
 }
