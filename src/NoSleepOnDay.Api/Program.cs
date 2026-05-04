@@ -1,9 +1,12 @@
+using NoSleepOnDay.Api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 const string AngularDevCorsPolicy = "AllowAngularDev";
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddProblemDetails();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(AngularDevCorsPolicy, policy =>
@@ -15,7 +18,14 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddSingleton<IRegionCatalog, RegionCatalog>();
+builder.Services.AddSingleton<ISunCalculator, SunCalculator>();
+builder.Services.AddSingleton<IDaylightAnalysisService, DaylightAnalysisService>();
+
 var app = builder.Build();
+
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {
