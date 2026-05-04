@@ -49,6 +49,7 @@ export interface AnalysisResult {
   shifted: DaylightAggregate;
   delta: DaylightDelta;
   optimal: OptimalSchedule;
+  optimalShifted: OptimalSchedule;
   series: DaylightSeriesPoint[];
 }
 

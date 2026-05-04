@@ -153,4 +153,32 @@ public class DaylightAnalysisServiceTests
             .NotBe(new TimeOnly(6, 0),
                 because: "for Kirov, 06:00 wake leaves morning light unused — optimum should differ");
     }
+
+    [Fact]
+    public void Optimal_shifted_for_positive_shift_captures_at_least_as_much_light_as_optimal()
+    {
+        var date = new DateOnly(2026, 6, 21);
+        var range = new DateRange(date, date);
+        var fake = FakeSunCalculator.UniformDay(date, date, new TimeOnly(3, 0), new TimeOnly(20, 0));
+        var sut = new DaylightAnalysisService(fake);
+
+        var result = sut.Analyze(KirovRegion, range, new WakeWindow(new TimeOnly(6, 0), 8.0), shiftHours: 1);
+
+        result.OptimalShifted.TotalDaylightMinutes.Should().BeGreaterThanOrEqualTo(
+            result.Optimal.TotalDaylightMinutes,
+            because: "shift +1h gives the optimizer extra room (window can extend earlier into the morning sun)");
+    }
+
+    [Fact]
+    public void Optimal_shifted_uses_user_facing_clock_for_wake_time()
+    {
+        var range = DateRange.ForYear(2026);
+        var sut = new DaylightAnalysisService(new SunCalculator());
+
+        var result = sut.Analyze(KirovRegion, range, new WakeWindow(new TimeOnly(6, 0), 8.0), shiftHours: 1);
+
+        var wake = result.OptimalShifted.WakeTime;
+        (wake >= WakeWindow.MinWakeTime).Should().BeTrue();
+        (wake <= WakeWindow.MaxWakeTime).Should().BeTrue();
+    }
 }

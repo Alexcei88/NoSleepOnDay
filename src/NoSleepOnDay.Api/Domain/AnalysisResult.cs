@@ -9,6 +9,7 @@ public sealed record AnalysisResult(
     DaylightAggregate Shifted,
     DaylightDelta Delta,
     OptimalSchedule Optimal,
+    OptimalSchedule OptimalShifted,
     IReadOnlyList<DaylightSeriesPoint> Series);
 
 public sealed record AnalysisPeriod(

@@ -36,6 +36,7 @@ public class ContractMapperTests
             new DaylightAggregate(28680, 78),
             new DaylightDelta(3960, 11),
             new OptimalSchedule(new TimeOnly(7, 30), new TimeOnly(23, 30), 30120, 82, false),
+            new OptimalSchedule(new TimeOnly(6, 30), new TimeOnly(22, 30), 31200, 85, false),
             new[]
             {
                 new DaylightSeriesPoint(new DateOnly(2026, 1, 1), 32, 47),
@@ -51,6 +52,9 @@ public class ContractMapperTests
         dto.WakeWindow.SleepHours.Should().Be(8.0);
         dto.Optimal.WakeTime.Should().Be("07:30");
         dto.Optimal.SleepTime.Should().Be("23:30");
+        dto.OptimalShifted.WakeTime.Should().Be("06:30");
+        dto.OptimalShifted.SleepTime.Should().Be("22:30");
+        dto.OptimalShifted.AvgDaylightPerDay.Should().Be(85);
         dto.Series.Should().HaveCount(1);
         dto.Series[0].Date.Should().Be("2026-01-01");
         dto.Current.TotalDaylightMinutes.Should().Be(24720);

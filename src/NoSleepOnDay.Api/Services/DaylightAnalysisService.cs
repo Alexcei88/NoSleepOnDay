@@ -55,7 +55,8 @@ public sealed class DaylightAnalysisService : IDaylightAnalysisService
         var totalGain = totalShifted - totalCurrent;
         var delta = new DaylightDelta(totalGain, totalGain / dayCount);
 
-        var optimal = FindOptimal(sunTimesByDay, wakeWindow, dayCount);
+        var optimal = FindOptimal(sunTimesByDay, wakeWindow, dayCount, TimeSpan.Zero);
+        var optimalShifted = FindOptimal(sunTimesByDay, wakeWindow, dayCount, shiftSpan);
 
         var periodInfo = BuildAnalysisPeriod(period);
 
@@ -68,13 +69,21 @@ public sealed class DaylightAnalysisService : IDaylightAnalysisService
             shifted,
             delta,
             optimal,
+            optimalShifted,
             series);
     }
 
+    /// <summary>
+    /// Перебирает wake-кандидаты в [04:00, 10:00] и ищет максимум суммы световых минут
+    /// в окне [wake - shiftOffset, wake - shiftOffset + windowDuration]. WakeTime в OptimalSchedule
+    /// — это то, что показывает «бытовой» циферблат пользователя, а shiftOffset моделирует,
+    /// что часовой пояс региона сдвинут (то есть солнце «едет» относительно часов).
+    /// </summary>
     private static OptimalSchedule FindOptimal(
         IReadOnlyDictionary<DateOnly, SunTimes> sunTimesByDay,
         WakeWindow wakeWindow,
-        int dayCount)
+        int dayCount,
+        TimeSpan shiftOffset)
     {
         var windowDuration = wakeWindow.WindowDuration;
         var stepMinutes = WakeWindow.WakeTimeStepMinutes;
@@ -92,7 +101,7 @@ public sealed class DaylightAnalysisService : IDaylightAnalysisService
 
             foreach (var (date, sunTimes) in sunTimesByDay)
             {
-                var windowStart = date.ToDateTime(candidateWake);
+                var windowStart = date.ToDateTime(candidateWake) - shiftOffset;
                 var windowEnd = windowStart + windowDuration;
                 candidateTotal += IntersectMinutes(
                     sunTimes.SunriseLocal, sunTimes.SunsetLocal,

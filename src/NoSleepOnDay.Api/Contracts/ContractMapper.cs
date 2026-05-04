@@ -17,6 +17,16 @@ public static class ContractMapper
             region.TimeZoneId);
     }
 
+    private static OptimalScheduleDto ToDto(OptimalSchedule schedule)
+    {
+        return new OptimalScheduleDto(
+            schedule.WakeTime.ToString(TimeFormat),
+            schedule.SleepTime.ToString(TimeFormat),
+            schedule.TotalDaylightMinutes,
+            schedule.AvgDaylightPerDay,
+            schedule.ClampedToBounds);
+    }
+
     public static AnalysisResultDto ToDto(this AnalysisResult result)
     {
         return new AnalysisResultDto(
@@ -41,12 +51,8 @@ public static class ContractMapper
             new DaylightDeltaDto(
                 result.Delta.TotalGainMinutes,
                 result.Delta.AvgGainPerDay),
-            new OptimalScheduleDto(
-                result.Optimal.WakeTime.ToString(TimeFormat),
-                result.Optimal.SleepTime.ToString(TimeFormat),
-                result.Optimal.TotalDaylightMinutes,
-                result.Optimal.AvgDaylightPerDay,
-                result.Optimal.ClampedToBounds),
+            ToDto(result.Optimal),
+            ToDto(result.OptimalShifted),
             result.Series
                 .Select(p => new DaylightSeriesPointDto(
                     p.Date.ToString(DateFormat),

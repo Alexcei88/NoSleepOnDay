@@ -9,6 +9,7 @@ public sealed record AnalysisResultDto(
     DaylightAggregateDto Shifted,
     DaylightDeltaDto Delta,
     OptimalScheduleDto Optimal,
+    OptimalScheduleDto OptimalShifted,
     IReadOnlyList<DaylightSeriesPointDto> Series);
 
 public sealed record PeriodDto(
