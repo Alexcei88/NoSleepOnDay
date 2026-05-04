@@ -1,0 +1,40 @@
+// Цветовая палитра проекта — отражает контраст утра и вечера.
+// Тёплые оттенки (солнце, утро) — янтарь и охра.
+// Холодные (ночь, вечер) — глубокий синий и индиго.
+
+:root {
+  --color-warm-amber: #f4a300;
+  --color-warm-amber-soft: #f7c66b;
+  --color-warm-amber-fade: rgba(244, 163, 0, 0.12);
+
+  --color-cool-indigo: #1e2a6e;
+  --color-cool-indigo-soft: #4855a8;
+  --color-cool-indigo-fade: rgba(30, 42, 110, 0.12);
+
+  --color-bg: #faf8f4;
+  --color-surface: #ffffff;
+  --color-text: #1f2329;
+  --color-text-muted: #5b626c;
+  --color-border: #e2dfd9;
+
+  --color-positive: var(--color-warm-amber);
+  --color-positive-bg: var(--color-warm-amber-fade);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  --shadow-soft: 0 4px 16px rgba(31, 35, 41, 0.06);
+
+  --font-sans:
+    'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    sans-serif;
+}
