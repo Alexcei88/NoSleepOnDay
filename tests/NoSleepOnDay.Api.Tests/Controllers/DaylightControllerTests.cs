@@ -109,4 +109,28 @@ public class DaylightControllerTests : IClassFixture<WebApplicationFactory<Progr
             "/api/daylight/analysis?regionId=kirov&periodType=decade&year=2026");
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    [InlineData(-3)]
+    [InlineData(10)]
+    public async Task Disallowed_shiftHours_returns_400(int shiftHours)
+    {
+        var response = await _client.GetAsync(
+            $"/api/daylight/analysis?regionId=kirov&periodType=year&year=2026&shiftHours={shiftHours}");
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Theory]
+    [InlineData(-2)]
+    [InlineData(-1)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Allowed_shiftHours_return_200(int shiftHours)
+    {
+        var response = await _client.GetAsync(
+            $"/api/daylight/analysis?regionId=kirov&periodType=year&year=2026&shiftHours={shiftHours}");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
 }

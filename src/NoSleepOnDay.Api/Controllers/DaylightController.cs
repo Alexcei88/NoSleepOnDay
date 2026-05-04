@@ -98,6 +98,14 @@ public sealed class DaylightController : ControllerBase
                 detail: ex.Message);
         }
 
+        if (shiftHours is not (-2 or -1 or 1 or 2))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid shiftHours",
+                detail: "shiftHours must be one of -2, -1, 1, 2.");
+        }
+
         var result = _analysis.Analyze(region, period, window, shiftHours);
         return Ok(result.ToDto());
     }
