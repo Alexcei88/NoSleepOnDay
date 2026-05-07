@@ -22,7 +22,15 @@
 
     @if (analysis(); as a) {
       <app-summary-cards [analysis]="a" class="fade-in" />
-      <app-daylight-chart [analysis]="a" class="fade-in" />
+      <app-daylight-chart [analysis]="a" class="fade-in" (daySelected)="selectedDate.set($event)" />
+      @if (selectedPoint(); as p) {
+        <app-day-detail
+          [point]="p"
+          [shiftHours]="shiftHours()"
+          (close)="selectedDate.set(null)"
+          class="fade-in"
+        />
+      }
       <app-optimal-schedule-card [analysis]="a" class="fade-in" />
     }
   </section>

@@ -48,6 +48,7 @@ const MONTH_NAMES_RU = [
           [data]="chartData()"
           [options]="chartOptions"
           type="line"
+          (chartClick)="onChartClick($event)"
         ></canvas>
       </div>
     </div>
@@ -83,6 +84,7 @@ const MONTH_NAMES_RU = [
       .chart-card__canvas {
         position: relative;
         height: 320px;
+        canvas { cursor: pointer; }
       }
       @media (max-width: 768px) {
         .chart-card__canvas {
@@ -94,6 +96,7 @@ const MONTH_NAMES_RU = [
 })
 export class DaylightChartComponent {
   readonly analysis = input.required<AnalysisResult>();
+  readonly daySelected = output<string>();
 
   protected readonly chartData = computed<ChartConfiguration<'line'>['data']>(() => {
     const a = this.analysis();
@@ -185,6 +188,16 @@ export class DaylightChartComponent {
       },
     },
   };
+
+  protected onChartClick({ active }: { event?: ChartEvent; active?: object[] }): void {
+    if (!active?.length) return;
+    const index = (active[0] as ActiveElement).index;
+    if (index == null) return;
+    const series = this.analysis().series;
+    if (index >= 0 && index < series.length) {
+      this.daySelected.emit(series[index].date);
+    }
+  }
 }
 
 function formatLabel(isoDate: string, totalCount: number): string {

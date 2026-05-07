@@ -5,7 +5,7 @@ import { catchError, debounceTime, map, of, startWith, switchMap } from 'rxjs';
 import { RegionsService } from '../../core/api/regions.service';
 import { DaylightService } from '../../core/api/daylight.service';
 import { Region } from '../../core/models/region';
-import { AnalysisRequest, AnalysisResult } from '../../core/models/analysis';
+import { AnalysisRequest, AnalysisResult, DaylightSeriesPoint } from '../../core/models/analysis';
 import { RegionSelectorComponent } from './controls/region-selector.component';
 import { WakeTimePickerComponent } from './controls/wake-time-picker.component';
 import { SleepTimePickerComponent } from './controls/sleep-time-picker.component';
@@ -21,6 +21,7 @@ import { SummaryCardsComponent } from './summary-cards/summary-cards.component';
 import { DaylightChartComponent } from './daylight-chart/daylight-chart.component';
 import { OptimalScheduleCardComponent } from './optimal-schedule/optimal-schedule-card.component';
 import { HeroComponent } from './hero/hero.component';
+import { DayDetailComponent } from './day-detail/day-detail.component';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -35,6 +36,7 @@ import { HeroComponent } from './hero/hero.component';
     SummaryCardsComponent,
     DaylightChartComponent,
     OptimalScheduleCardComponent,
+    DayDetailComponent,
   ],
   templateUrl: './dashboard.page.html',
   styleUrl: './dashboard.page.scss',
@@ -60,6 +62,14 @@ export class DashboardPage {
   protected readonly analysis = signal<AnalysisResult | null>(null);
   protected readonly isLoading = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly selectedDate = signal<string | null>(null);
+
+  protected readonly selectedPoint = computed<DaylightSeriesPoint | null>(() => {
+    const date = this.selectedDate();
+    const a = this.analysis();
+    if (!date || !a) return null;
+    return a.series.find((p) => p.date === date) ?? null;
+  });
 
   protected readonly sleepHours = computed(() => {
     const wakeMinutes = parseHHmm(this.wakeTime());
@@ -110,6 +120,7 @@ export class DashboardPage {
       .subscribe((event) => {
         if (event.kind === 'ok') {
           this.analysis.set(event.result);
+          this.selectedDate.set(null);
           this.isLoading.set(false);
         } else if (event.kind === 'error') {
           this.error.set(event.message);
