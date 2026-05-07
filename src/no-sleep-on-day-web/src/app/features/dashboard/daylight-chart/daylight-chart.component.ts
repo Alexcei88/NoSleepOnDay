@@ -1,8 +1,9 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
 import {
   CategoryScale,
   Chart,
+  type ChartEvent,
   Filler,
   Legend,
   LinearScale,
@@ -10,6 +11,7 @@ import {
   LineElement,
   PointElement,
   Tooltip,
+  type ActiveElement,
   type ChartConfiguration,
 } from 'chart.js';
 import { AnalysisResult } from '../../../core/models/analysis';
@@ -36,9 +38,17 @@ const MONTH_NAMES_RU = [
   imports: [BaseChartDirective],
   template: `
     <div class="chart-card">
-      <header class="chart-card__title">Световые минуты в окне бодрствования по дням</header>
+      <header class="chart-card__title">
+        Световые минуты в окне бодрствования по дням
+        <span class="chart-card__hint">— клик по точке покажет детали дня</span>
+      </header>
       <div class="chart-card__canvas">
-        <canvas baseChart [data]="chartData()" [options]="chartOptions" type="line"></canvas>
+        <canvas
+          baseChart
+          [data]="chartData()"
+          [options]="chartOptions"
+          type="line"
+        ></canvas>
       </div>
     </div>
   `,
@@ -53,6 +63,14 @@ const MONTH_NAMES_RU = [
         border-radius: var(--radius-md);
         box-shadow: var(--shadow-soft);
         padding: var(--space-5);
+      }
+      .chart-card__hint {
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: none;
+        color: var(--color-text-muted);
+        letter-spacing: 0;
+        margin-left: var(--space-2);
       }
       .chart-card__title {
         font-size: 0.85rem;

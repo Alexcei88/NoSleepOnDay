@@ -36,6 +36,9 @@ export interface OptimalSchedule {
 
 export interface DaylightSeriesPoint {
   date: string;
+  sunriseLocal: string;
+  sunsetLocal: string;
+  dayLengthMinutes: number;
   currentMinutes: number;
   shiftedMinutes: number;
 }
