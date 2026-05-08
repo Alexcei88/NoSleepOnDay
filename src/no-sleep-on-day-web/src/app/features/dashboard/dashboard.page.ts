@@ -4,9 +4,11 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, debounceTime, map, of, startWith, switchMap } from 'rxjs';
 import { RegionsService } from '../../core/api/regions.service';
 import { DaylightService } from '../../core/api/daylight.service';
+import { HeatmapService } from '../../core/api/heatmap.service';
 import { Region } from '../../core/models/region';
 import { AnalysisRequest, AnalysisResult, DaylightSeriesPoint } from '../../core/models/analysis';
-import { RegionSelectorComponent } from './controls/region-selector.component';
+import { HeatmapRequest, HeatmapResponse } from '../../core/models/heatmap';
+import { RegionHeroComponent } from './selected-region/region-hero.component';
 import { WakeTimePickerComponent } from './controls/wake-time-picker.component';
 import { SleepTimePickerComponent } from './controls/sleep-time-picker.component';
 import {
@@ -22,13 +24,14 @@ import { DaylightChartComponent } from './daylight-chart/daylight-chart.componen
 import { OptimalScheduleCardComponent } from './optimal-schedule/optimal-schedule-card.component';
 import { HeroComponent } from './hero/hero.component';
 import { DayDetailComponent } from './day-detail/day-detail.component';
+import { RussiaMapComponent } from './russia-map/russia-map.component';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
   imports: [
     HeroComponent,
-    RegionSelectorComponent,
+    RegionHeroComponent,
     WakeTimePickerComponent,
     SleepTimePickerComponent,
     ShiftSelectorComponent,
@@ -37,6 +40,7 @@ import { DayDetailComponent } from './day-detail/day-detail.component';
     DaylightChartComponent,
     OptimalScheduleCardComponent,
     DayDetailComponent,
+    RussiaMapComponent,
   ],
   templateUrl: './dashboard.page.html',
   styleUrl: './dashboard.page.scss',
@@ -44,6 +48,7 @@ import { DayDetailComponent } from './day-detail/day-detail.component';
 export class DashboardPage {
   private readonly regionsService = inject(RegionsService);
   private readonly daylightService = inject(DaylightService);
+  private readonly heatmapService = inject(HeatmapService);
 
   protected readonly regions = toSignal(this.regionsService.getAll(), {
     initialValue: [] as Region[],
@@ -51,7 +56,7 @@ export class DashboardPage {
 
   protected readonly regionId = signal<string | null>('kirov');
   protected readonly wakeTime = signal<string>('06:00');
-  protected readonly sleepTime = signal<string>('22:00');
+  protected readonly sleepTime = signal<string>('21:00');
   protected readonly shiftHours = signal<ShiftHours>(1);
   protected readonly period = signal<PeriodSelection>({
     periodType: 'year',
@@ -63,6 +68,7 @@ export class DashboardPage {
   protected readonly isLoading = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
   protected readonly selectedDate = signal<string | null>(null);
+  protected readonly heatmap = signal<HeatmapResponse | null>(null);
 
   protected readonly selectedPoint = computed<DaylightSeriesPoint | null>(() => {
     const date = this.selectedDate();
@@ -93,6 +99,13 @@ export class DashboardPage {
       shiftHours: this.shiftHours(),
     };
   });
+
+  protected readonly heatmapRequest = computed<HeatmapRequest>(() => ({
+    year: this.period().year,
+    shiftHours: this.shiftHours(),
+    wakeTime: this.wakeTime(),
+    sleepHours: this.sleepHours(),
+  }));
 
   protected readonly periodLabel = computed(() => {
     const p = this.period();
@@ -127,6 +140,15 @@ export class DashboardPage {
           this.isLoading.set(false);
         }
       });
+
+    toObservable(this.heatmapRequest)
+      .pipe(
+        debounceTime(400),
+        switchMap((req) =>
+          this.heatmapService.load(req).pipe(catchError(() => of(null))),
+        ),
+      )
+      .subscribe((heatmap) => this.heatmap.set(heatmap));
   }
 }
 

@@ -1,0 +1,234 @@
+:host {
+  display: block;
+}
+
+.map-card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  padding: var(--space-5);
+}
+
+.map-card__header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.map-card__title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.map-card__hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.map-card__body {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .map-card__body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.map-card__leaflet {
+  position: relative;
+  height: 480px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+// Браузер по дефолту рисует чёрный focus-outline у кликнутого SVG-полигона.
+// Убираем для мыши, оставляем для keyboard-навигации (focus-visible).
+::ng-deep .map-card__leaflet .leaflet-interactive:focus {
+  outline: none;
+}
+::ng-deep .map-card__leaflet .leaflet-interactive:focus-visible {
+  outline: 2px solid #1e2a6e;
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .map-card__leaflet {
+    height: 360px;
+  }
+}
+
+.map-card__loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  color: var(--color-text-muted);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.map-card__legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: 0.78rem;
+  color: var(--color-text);
+  padding-top: var(--space-2);
+  white-space: nowrap;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.legend-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--space-1) 0;
+}
+
+.legend-row--marker {
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+.legend-chip {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #1e2a6e;
+  background: #ffffff;
+  border: 1px solid rgba(30, 42, 110, 0.18);
+  border-radius: 999px;
+}
+
+::ng-deep .rmap-chip-wrapper {
+  background: transparent !important;
+  border: none !important;
+  width: auto !important;
+  height: auto !important;
+  pointer-events: none;
+  // Центрируем чип относительно lat/lon: контейнер 0×0, дочерний span смещаем.
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+::ng-deep .rmap-chip {
+  pointer-events: auto;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #1e2a6e;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(30, 42, 110, 0.18);
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  transition: transform 100ms ease, background 100ms ease;
+  user-select: none;
+
+  &:hover {
+    background: #ffffff;
+    transform: translate(-50%, -50%) scale(1.08);
+    z-index: 1100;
+    border-color: #1e2a6e;
+  }
+}
+
+::ng-deep .rmap-chip__name {
+  font-weight: 600;
+  font-size: 0.7rem;
+}
+
+::ng-deep .rmap-chip__tz {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+::ng-deep .rmap-chip--selected {
+  background: #1e2a6e;
+  color: #ffffff;
+  border-color: #1e2a6e;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  box-shadow: 0 4px 12px rgba(30, 42, 110, 0.35);
+
+  .rmap-chip__tz {
+    background: rgba(255, 255, 255, 0.18);
+    padding: 1px 6px;
+    border-radius: 999px;
+    color: #ffffff;
+  }
+
+  &:hover {
+    background: #1e2a6e;
+  }
+}
+
+// На дальнем зуме (по умолчанию) показываем чип только у выбранного региона —
+// иначе 85 чипов сливаются в кашу. Остальные становятся видимы при приближении.
+.map--zoom-low ::ng-deep .rmap-chip:not(.rmap-chip--selected) {
+  display: none;
+}
+
+::ng-deep .leaflet-tooltip.russia-map-tooltip {
+  background: rgba(20, 24, 36, 0.94);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
+
+  strong {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .russia-map-tooltip__tz {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #fde68a;
+    margin-bottom: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  &::before {
+    border-top-color: rgba(20, 24, 36, 0.94);
+  }
+}

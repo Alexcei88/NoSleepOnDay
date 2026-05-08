@@ -1,13 +1,21 @@
 <div class="page">
   <app-hero />
 
+  <app-region-hero [regions]="regions()" [(value)]="regionId" />
+
   <section class="filters">
-    <app-region-selector [regions]="regions()" [(value)]="regionId" />
     <app-wake-time-picker [(value)]="wakeTime" />
     <app-sleep-time-picker [wakeTime]="wakeTime()" [(value)]="sleepTime" />
     <app-period-selector [(value)]="period" />
     <app-shift-selector [(value)]="shiftHours" />
   </section>
+
+  <app-russia-map
+    [heatmap]="heatmap()"
+    [regions]="regions()"
+    [selectedRegionId]="regionId()"
+    (regionSelected)="regionId.set($event)"
+  />
 
   <section class="results">
     <p class="results__period-label">{{ periodLabel() }}</p>

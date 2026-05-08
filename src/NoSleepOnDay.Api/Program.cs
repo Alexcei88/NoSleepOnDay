@@ -19,9 +19,16 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddMemoryCache(options =>
+{
+    options.SizeLimit = 4096;
+});
+
 builder.Services.AddSingleton<IRegionCatalog, RegionCatalog>();
 builder.Services.AddSingleton<ISunCalculator, SunCalculator>();
 builder.Services.AddSingleton<IDaylightAnalysisService, DaylightAnalysisService>();
+builder.Services.AddSingleton<IHeatmapService, HeatmapService>();
+builder.Services.AddHostedService<HeatmapWarmupHostedService>();
 
 var app = builder.Build();
 

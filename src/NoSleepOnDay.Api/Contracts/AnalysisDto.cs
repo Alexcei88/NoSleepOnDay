@@ -46,3 +46,17 @@ public sealed record DaylightSeriesPointDto(
     int DayLengthMinutes,
     int CurrentMinutes,
     int ShiftedMinutes);
+
+public sealed record HeatmapPointDto(
+    string RegionId,
+    string Iso2,
+    string RegionName,
+    int TotalGainMinutes,
+    int AvgGainPerDay);
+
+public sealed record HeatmapResponseDto(
+    int Year,
+    int ShiftHours,
+    string WakeTime,
+    double SleepHours,
+    IReadOnlyList<HeatmapPointDto> Regions);

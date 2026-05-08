@@ -11,6 +11,7 @@ public static class ContractMapper
     {
         return new RegionDto(
             region.Id,
+            region.Iso2,
             region.Name,
             region.Latitude,
             region.Longitude,

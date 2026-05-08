@@ -24,6 +24,7 @@ describe('RegionsService', () => {
     const fixture: Region[] = [
       {
         id: 'kirov',
+        iso2: 'KIR',
         name: 'Кировская область',
         latitude: 58.6,
         longitude: 49.7,

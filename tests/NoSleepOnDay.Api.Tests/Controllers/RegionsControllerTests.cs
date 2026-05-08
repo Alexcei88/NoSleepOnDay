@@ -16,7 +16,7 @@ public class RegionsControllerTests : IClassFixture<WebApplicationFactory<Progra
     }
 
     [Fact]
-    public async Task Get_returns_200_with_kirov_in_the_list()
+    public async Task Get_returns_200_with_full_catalog()
     {
         var response = await _client.GetAsync("/api/regions");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -24,9 +24,21 @@ public class RegionsControllerTests : IClassFixture<WebApplicationFactory<Progra
         var regions = await response.Content.ReadFromJsonAsync<IReadOnlyList<RegionDto>>();
 
         regions.Should().NotBeNull();
-        regions!.Should().HaveCount(1);
-        regions[0].Id.Should().Be("kirov");
-        regions[0].Name.Should().Be("Кировская область");
-        regions[0].TimeZone.Should().Be("Europe/Kirov");
+        regions!.Should().HaveCount(85);
+
+        var kirov = regions.SingleOrDefault(r => r.Id == "kirov");
+        kirov.Should().NotBeNull();
+        kirov!.Iso2.Should().Be("KIR");
+        kirov.Name.Should().Be("Кировская область");
+        kirov.TimeZone.Should().Be("Europe/Kirov");
+    }
+
+    [Fact]
+    public async Task Get_returns_unique_iso2_for_every_region()
+    {
+        var response = await _client.GetAsync("/api/regions");
+        var regions = await response.Content.ReadFromJsonAsync<IReadOnlyList<RegionDto>>();
+
+        regions!.Select(r => r.Iso2).Should().OnlyHaveUniqueItems();
     }
 }

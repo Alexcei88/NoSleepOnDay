@@ -9,17 +9,17 @@ public class ContractMapperTests
     [Fact]
     public void Region_maps_to_dto_with_iana_timezone()
     {
-        var region = new Region("kirov", "Кировская область", 58.6035, 49.6680, "Europe/Kirov");
+        var region = new Region("kirov", "KIR", "Кировская область", 58.6035, 49.6680, "Europe/Kirov");
 
         var dto = region.ToDto();
 
-        dto.Should().Be(new RegionDto("kirov", "Кировская область", 58.6035, 49.6680, "Europe/Kirov"));
+        dto.Should().Be(new RegionDto("kirov", "KIR", "Кировская область", 58.6035, 49.6680, "Europe/Kirov"));
     }
 
     [Fact]
     public void AnalysisResult_maps_to_dto_with_formatted_dates_and_times()
     {
-        var region = new Region("kirov", "Кировская область", 58.6035, 49.6680, "Europe/Kirov");
+        var region = new Region("kirov", "KIR", "Кировская область", 58.6035, 49.6680, "Europe/Kirov");
         var period = new AnalysisPeriod(
             PeriodType.Year,
             2026,

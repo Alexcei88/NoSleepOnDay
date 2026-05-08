@@ -7,7 +7,7 @@ namespace NoSleepOnDay.Api.Tests.Services;
 public class DaylightAnalysisServiceTests
 {
     private static readonly Region KirovRegion = new(
-        "kirov", "Кировская область", 58.6035, 49.6680, "Europe/Kirov");
+        "kirov", "KIR", "Кировская область", 58.6035, 49.6680, "Europe/Kirov");
 
     [Fact]
     public void When_sun_window_is_inside_wake_window_current_minutes_equals_full_day_length()
