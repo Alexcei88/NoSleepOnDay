@@ -1,0 +1,92 @@
+// Анимированное небо: ночь → рассвет → утро → полдень → закат → сумерки → ночь
+// @property позволяет браузеру интерполировать цвета внутри gradient() между keyframes.
+
+@property --sky-zenith {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #020610;
+}
+
+@property --sky-mid {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #07122a;
+}
+
+@property --sky-horizon {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #0d1e3a;
+}
+
+@keyframes sky-cycle {
+  // Полночь
+  0%, 100% {
+    --sky-zenith:  #020610;
+    --sky-mid:     #07122a;
+    --sky-horizon: #0d1e3a;
+  }
+  // Предрассветные сумерки (≈ 4:00)
+  13% {
+    --sky-zenith:  #06082c;
+    --sky-mid:     #1c0a3e;
+    --sky-horizon: #3e1a5e;
+  }
+  // Восход (≈ 6:00) — горизонт вспыхивает огнём
+  23% {
+    --sky-zenith:  #1a2e60;
+    --sky-mid:     #d46420;
+    --sky-horizon: #f08420;
+  }
+  // Утро (≈ 8:30) — золотой свет
+  32% {
+    --sky-zenith:  #2262aa;
+    --sky-mid:     #c8a040;
+    --sky-horizon: #fce8a0;
+  }
+  // Полдень (≈ 12:00) — чистое ярко-синее небо
+  48% {
+    --sky-zenith:  #1050aa;
+    --sky-mid:     #4898e0;
+    --sky-horizon: #88c4f0;
+  }
+  // После полудня (≈ 15:00) — чуть теплее
+  62% {
+    --sky-zenith:  #1458b0;
+    --sky-mid:     #3c88d0;
+    --sky-horizon: #74b0e4;
+  }
+  // Закат (≈ 19:00) — пурпур и огонь
+  74% {
+    --sky-zenith:  #380078;
+    --sky-mid:     #b83818;
+    --sky-horizon: #f07228;
+  }
+  // Вечерние сумерки (≈ 21:00)
+  86% {
+    --sky-zenith:  #0a0822;
+    --sky-mid:     #200e3e;
+    --sky-horizon: #2e1858;
+  }
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to bottom,
+    var(--sky-zenith)  0%,
+    var(--sky-mid)     45%,
+    var(--sky-horizon) 100%
+  );
+  animation: sky-cycle 60s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+    background: linear-gradient(to bottom, #1050aa 0%, #4898e0 45%, #88c4f0 100%);
+  }
+}

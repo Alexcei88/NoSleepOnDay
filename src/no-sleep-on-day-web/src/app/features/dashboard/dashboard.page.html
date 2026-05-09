@@ -1,7 +1,27 @@
 <div class="page">
   <app-hero />
 
-  <app-region-hero [regions]="regions()" [(value)]="regionId" />
+  <div class="region-map-block">
+    <app-region-hero [regions]="regions()" [(value)]="regionId" />
+    <div class="region-map-block__main">
+      <app-russia-map
+        [heatmap]="heatmap()"
+        [regions]="regions()"
+        [selectedRegionId]="regionId()"
+        (regionSelected)="regionId.set($event)"
+      />
+      <aside class="region-map-block__stats">
+        @if (analysis(); as a) {
+          <p class="region-map-block__stats-title">{{ periodLabel() }}</p>
+          <app-summary-cards [analysis]="a" />
+        } @else {
+          <p class="region-map-block__stats-empty">
+            Выберите регион и настройте параметры — здесь появится статистика
+          </p>
+        }
+      </aside>
+    </div>
+  </div>
 
   <section class="filters">
     <app-wake-time-picker [(value)]="wakeTime" />
@@ -10,16 +30,7 @@
     <app-shift-selector [(value)]="shiftHours" />
   </section>
 
-  <app-russia-map
-    [heatmap]="heatmap()"
-    [regions]="regions()"
-    [selectedRegionId]="regionId()"
-    (regionSelected)="regionId.set($event)"
-  />
-
   <section class="results">
-    <p class="results__period-label">{{ periodLabel() }}</p>
-
     @if (isLoading() && !analysis()) {
       <p class="results__loader">⏳ Считаем световые минуты…</p>
     }
@@ -29,7 +40,6 @@
     }
 
     @if (analysis(); as a) {
-      <app-summary-cards [analysis]="a" class="fade-in" />
       <app-daylight-chart [analysis]="a" class="fade-in" (daySelected)="selectedDate.set($event)" />
       @if (selectedPoint(); as p) {
         <app-day-detail

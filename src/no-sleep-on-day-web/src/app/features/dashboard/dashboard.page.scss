@@ -1,7 +1,7 @@
 .page {
-  max-width: 1100px;
+  width: min(96vw, 1800px);
   margin: 0 auto;
-  padding: var(--space-8) var(--space-5);
+  padding: var(--space-8) 0 var(--space-8);
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
@@ -35,6 +35,121 @@
 .filters > * {
   display: flex;
   flex-direction: column;
+}
+
+.region-map-block {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+
+  app-region-hero {
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
+.region-map-block__main {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  height: 560px;
+
+  app-russia-map {
+    min-width: 0;
+  }
+}
+
+.region-map-block__stats {
+  border-left: 1px solid var(--color-border);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  overflow: hidden;
+
+  // Пробрасываем flex: 1 по всей цепочке вглубь компонентов
+  ::ng-deep app-summary-cards {
+    flex: 1 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  ::ng-deep .summary-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--space-3) !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+  }
+
+  ::ng-deep app-summary-card {
+    flex: 1 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  ::ng-deep .card {
+    flex: 1 !important;
+    height: auto !important;
+    padding: var(--space-3) var(--space-4) !important;
+    gap: var(--space-2) !important;
+  }
+
+  ::ng-deep .card__value-number {
+    font-size: 1.7rem !important;
+    line-height: 1.1 !important;
+  }
+
+  ::ng-deep .card__title {
+    font-size: 0.72rem !important;
+  }
+
+  ::ng-deep .card__subtitle {
+    font-size: 0.8rem !important;
+  }
+}
+
+.region-map-block__stats-title {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-cool-indigo);
+}
+
+.region-map-block__stats-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.6;
+  padding: var(--space-4);
+}
+
+@media (max-width: 900px) {
+  .region-map-block__main {
+    grid-template-columns: 1fr;
+    height: auto;
+
+    .region-map-block__stats {
+      border-left: none;
+      border-top: 1px solid var(--color-border);
+      height: auto;
+    }
+
+    ::ng-deep .summary-grid {
+      grid-template-rows: auto !important;
+    }
+  }
 }
 
 .results {

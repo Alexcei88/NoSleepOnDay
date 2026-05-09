@@ -45,8 +45,10 @@ if (app.Environment.IsDevelopment())
     });
     app.UseCors(AngularDevCorsPolicy);
 }
-
-app.UseHttpsRedirection();
+else
+{
+    app.UseHttpsRedirection();
+}
 app.MapControllers();
 
 app.Run();

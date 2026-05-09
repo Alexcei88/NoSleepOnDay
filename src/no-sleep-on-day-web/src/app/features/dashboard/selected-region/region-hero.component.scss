@@ -5,25 +5,22 @@
 .hero-card {
   position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-6) var(--space-5);
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-6);
   background:
-    radial-gradient(120% 80% at 50% 0%, rgba(244, 163, 0, 0.08), transparent 60%),
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-soft);
-  text-align: center;
+    radial-gradient(80% 200% at 0% 50%, rgba(244, 163, 0, 0.07), transparent 60%),
+    linear-gradient(90deg, #ffffff 0%, #f8fafc 100%);
   overflow: hidden;
+  flex-wrap: wrap;
 }
 
 .hero-card::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(60% 40% at 50% 0%, rgba(30, 42, 110, 0.06), transparent 70%);
+  background: radial-gradient(40% 100% at 0% 50%, rgba(30, 42, 110, 0.05), transparent 70%);
   pointer-events: none;
 }
 
@@ -34,16 +31,17 @@
   letter-spacing: 0.18em;
   color: var(--color-text-muted);
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .hero-card__field {
   position: relative;
-  width: 100%;
-  max-width: 480px;
+  min-width: 200px;
+  max-width: 360px;
+  flex: 1;
 }
 
 ::ng-deep .hero-card__field {
-  // Скрываем внешнюю «коробку» mat-form-field — оставляем только текст и стрелку.
   .mat-mdc-form-field-flex {
     background: transparent !important;
     padding: 0 !important;
@@ -63,28 +61,26 @@
     min-height: auto;
   }
   .mat-mdc-select-trigger {
-    justify-content: center;
+    justify-content: flex-start;
   }
   .mat-mdc-select-value {
-    text-align: center;
-    font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+    font-size: clamp(1.1rem, 1.6vw, 1.4rem);
     font-weight: 700;
-    line-height: 1.15;
+    line-height: 1.2;
     letter-spacing: -0.01em;
     color: var(--color-text);
     max-width: none;
   }
   .mat-mdc-select-arrow-wrapper {
-    transform: translateY(2px);
+    transform: translateY(1px);
   }
   .mat-mdc-select-arrow {
     color: var(--color-cool-indigo, #1e2a6e);
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
   }
   .mat-mdc-select-placeholder {
-    text-align: center;
-    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-size: clamp(1rem, 1.4vw, 1.2rem);
     font-weight: 600;
     color: var(--color-text-muted);
   }
@@ -94,9 +90,9 @@
   position: relative;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  align-items: center;
   gap: var(--space-2);
-  margin-top: var(--space-1);
+  flex: 1;
 }
 
 .chip {
@@ -143,10 +139,12 @@
 
 .hero-card__hint {
   position: relative;
-  margin: var(--space-1) 0 0;
+  margin: 0;
   font-size: 0.74rem;
   color: var(--color-text-muted);
   font-style: italic;
+  white-space: nowrap;
+  margin-left: auto;
 }
 
 ::ng-deep .region-hero-panel {

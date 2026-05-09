@@ -60,6 +60,7 @@ export class PeriodSelectorComponent {
   });
 
   protected onBucketChange(bucket: string): void {
+    if (!bucket) return;
     if (bucket === 'year') {
       this.value.update((v) => ({ ...v, periodType: 'year' }));
     } else {
