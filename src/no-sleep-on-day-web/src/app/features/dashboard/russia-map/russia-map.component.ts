@@ -62,28 +62,32 @@ const MASK_FILL = '#f1f5f9';
 
         <aside class="map-card__legend">
           <div class="legend-row">
-            <span class="legend-swatch" style="background:#1a7f3c"></span>
-            <span>оптимально (≤10 ч)</span>
+            <span class="legend-swatch" style="background:#15803d"></span>
+            <span>≤10 ч — оптимально</span>
           </div>
           <div class="legend-row">
-            <span class="legend-swatch" style="background:#84cc16"></span>
-            <span>~30 ч</span>
+            <span class="legend-swatch" style="background:#4ade80"></span>
+            <span>10–30 ч</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-swatch" style="background:#bbf7d0"></span>
+            <span>30–60 ч</span>
           </div>
           <div class="legend-row">
             <span class="legend-swatch" style="background:#fde68a"></span>
-            <span>~60 ч</span>
+            <span>60–100 ч</span>
           </div>
           <div class="legend-row">
             <span class="legend-swatch" style="background:#fb923c"></span>
-            <span>~100 ч</span>
+            <span>100–150 ч</span>
           </div>
           <div class="legend-row">
             <span class="legend-swatch" style="background:#dc2626"></span>
-            <span>~200 ч</span>
+            <span>150–250 ч</span>
           </div>
           <div class="legend-row">
             <span class="legend-swatch" style="background:#7f1d1d"></span>
-            <span>≥300 ч</span>
+            <span>≥250 ч — неоптимально</span>
           </div>
           <div class="legend-divider"></div>
           <div class="legend-row legend-row--marker">
@@ -455,11 +459,11 @@ function shiftRing(ring: Position[]): void {
 function colorFor(minutes: number | undefined): string {
   if (minutes === undefined) return '#cbd5e1';
   const hours = minutes / 60;
-  if (hours < 10) return '#1a7f3c';
-  if (hours < 30) return '#84cc16';
-  if (hours < 60) return '#fde68a';
-  if (hours < 100) return '#fb923c';
-  if (hours < 150) return '#ef4444';
+  if (hours < 10) return '#15803d';
+  if (hours < 30) return '#4ade80';
+  if (hours < 60) return '#bbf7d0';
+  if (hours < 100) return '#fde68a';
+  if (hours < 150) return '#fb923c';
   if (hours < 250) return '#dc2626';
   return '#7f1d1d';
 }

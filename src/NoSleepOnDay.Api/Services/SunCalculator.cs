@@ -14,10 +14,30 @@ public sealed class SunCalculator : ISunCalculator
         var sunriseUtc = TryFindPhase(phases, SunPhaseName.Sunrise);
         var sunsetUtc = TryFindPhase(phases, SunPhaseName.Sunset);
 
-        if (sunriseUtc is null || sunsetUtc is null)
+        // Polar day: sun never sets → treat as 00:00–24:00 light window.
+        // Polar night: sun never rises → treat as no daylight (sunrise == sunset at noon).
+        if (sunriseUtc is null && sunsetUtc is null)
         {
-            throw new InvalidOperationException(
-                $"Sunrise/sunset undefined for {date:yyyy-MM-dd} at ({latitude}, {longitude}) — likely polar day or polar night.");
+            var noon = new DateTime(date.Year, date.Month, date.Day, 12, 0, 0, DateTimeKind.Utc);
+            var altitude = SunCalc.GetSunPosition(noon, latitude, longitude).Altitude;
+            if (altitude > 0)
+            {
+                // Polar day
+                sunriseUtc = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeKind.Utc);
+                sunsetUtc  = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59, DateTimeKind.Utc);
+            }
+            else
+            {
+                // Polar night
+                sunriseUtc = noon;
+                sunsetUtc  = noon;
+            }
+        }
+        else if (sunriseUtc is null || sunsetUtc is null)
+        {
+            // Partial data: fallback to noon (zero daylight intersection)
+            sunriseUtc ??= noonUtc;
+            sunsetUtc  ??= noonUtc;
         }
 
         var tz = TZConvert.GetTimeZoneInfo(timeZoneId);
