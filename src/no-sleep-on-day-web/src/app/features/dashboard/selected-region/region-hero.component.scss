@@ -5,14 +5,20 @@
 .hero-card {
   position: relative;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: var(--space-5);
-  padding: var(--space-4) var(--space-6);
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-6);
   background:
     radial-gradient(80% 200% at 0% 50%, rgba(244, 163, 0, 0.07), transparent 60%),
     linear-gradient(90deg, #ffffff 0%, #f8fafc 100%);
   overflow: hidden;
+}
+
+.hero-card__main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-5);
   flex-wrap: wrap;
 }
 
@@ -89,10 +95,9 @@
 .hero-card__meta {
   position: relative;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: var(--space-2);
-  flex: 1;
 }
 
 .chip {
@@ -140,11 +145,9 @@
 .hero-card__hint {
   position: relative;
   margin: 0;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   color: var(--color-text-muted);
   font-style: italic;
-  white-space: nowrap;
-  margin-left: auto;
 }
 
 ::ng-deep .region-hero-panel {

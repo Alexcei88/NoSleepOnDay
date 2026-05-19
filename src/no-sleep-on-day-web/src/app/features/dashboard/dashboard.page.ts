@@ -23,6 +23,8 @@ import { SummaryCardsComponent } from './summary-cards/summary-cards.component';
 import { DaylightChartComponent } from './daylight-chart/daylight-chart.component';
 import { OptimalScheduleCardComponent } from './optimal-schedule/optimal-schedule-card.component';
 import { HeroComponent } from './hero/hero.component';
+import { HowItWorksComponent } from './how-it-works/how-it-works.component';
+import { SleepScheduleComponent } from './sleep-schedule/sleep-schedule.component';
 import { DayDetailComponent } from './day-detail/day-detail.component';
 import { RussiaMapComponent } from './russia-map/russia-map.component';
 
@@ -31,9 +33,9 @@ import { RussiaMapComponent } from './russia-map/russia-map.component';
   standalone: true,
   imports: [
     HeroComponent,
+    HowItWorksComponent,
     RegionHeroComponent,
-    WakeTimePickerComponent,
-    SleepTimePickerComponent,
+    SleepScheduleComponent,
     ShiftSelectorComponent,
     PeriodSelectorComponent,
     SummaryCardsComponent,

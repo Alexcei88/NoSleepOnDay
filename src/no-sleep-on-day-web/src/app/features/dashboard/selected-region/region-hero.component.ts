@@ -9,37 +9,41 @@ import { Region } from '../../../core/models/region';
   imports: [MatFormFieldModule, MatSelectModule],
   template: `
     <section class="hero-card">
-      <div class="hero-card__crumb">Регион</div>
+      <div class="hero-card__main">
+        <div class="hero-card__crumb">Регион</div>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="hero-card__field">
-        <mat-select
-          [value]="value()"
-          (valueChange)="value.set($event)"
-          [disabled]="!regions().length"
-          panelClass="region-hero-panel"
-          hideSingleSelectionIndicator
-        >
-          @for (region of regions(); track region.id) {
-            <mat-option [value]="region.id">{{ region.name }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="hero-card__field">
+          <mat-select
+            [value]="value()"
+            (valueChange)="value.set($event)"
+            [disabled]="!regions().length"
+            panelClass="region-hero-panel"
+            hideSingleSelectionIndicator
+          >
+            @for (region of regions(); track region.id) {
+              <mat-option [value]="region.id">{{ region.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
 
-      @if (selected(); as r) {
-        <div class="hero-card__meta">
-          <span class="chip">
-            <span class="chip__icon">🕐</span>
-            <span class="chip__text">{{ r.timeZone }}<span class="chip__sub">UTC{{ utcOffsetLabel() }}</span></span>
-          </span>
-          <span class="chip">
-            <span class="chip__icon">📍</span>
-            <span class="chip__text">{{ formatLat(r.latitude) }} · {{ formatLon(r.longitude) }}</span>
-          </span>
-          @if (latitudeBadge(); as badge) {
-            <span class="chip chip--badge">{{ badge }}</span>
-          }
-        </div>
+        @if (selected(); as r) {
+          <div class="hero-card__meta">
+            <span class="chip">
+              <span class="chip__icon">🕐</span>
+              <span class="chip__text">{{ r.timeZone }}<span class="chip__sub">UTC{{ utcOffsetLabel() }}</span></span>
+            </span>
+            <span class="chip">
+              <span class="chip__icon">📍</span>
+              <span class="chip__text">{{ formatLat(r.latitude) }} · {{ formatLon(r.longitude) }}</span>
+            </span>
+            @if (latitudeBadge(); as badge) {
+              <span class="chip chip--badge">{{ badge }}</span>
+            }
+          </div>
+        }
+      </div>
 
+      @if (selected()) {
         <p class="hero-card__hint">кликни регион на карте, чтобы быстро переключиться</p>
       }
     </section>

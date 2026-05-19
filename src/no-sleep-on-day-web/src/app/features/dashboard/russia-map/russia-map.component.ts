@@ -48,11 +48,6 @@ const MASK_FILL = '#f1f5f9';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="map-card">
-      <header class="map-card__header">
-        <span class="map-card__title">Карта прироста света при сдвиге</span>
-        <span class="map-card__hint">— клик по региону или по точке столицы строит статистику</span>
-      </header>
-
       <div class="map-card__body">
         <div #host class="map-card__leaflet">
           @if (loading()) {
@@ -118,6 +113,9 @@ export class RussiaMapComponent implements AfterViewInit, OnDestroy {
   private chips = new Map<string, L.Marker>();
   private currentSelectedMarkerId: string | null = null;
 
+  private geoPos: { lat: number; lon: number } | 'fallback' | null = null;
+  private geoHandled = false;
+
   private readonly iso2ToGain = computed<Map<string, number>>(() => {
     const m = new Map<string, number>();
     const h = this.heatmap();
@@ -143,13 +141,16 @@ export class RussiaMapComponent implements AfterViewInit, OnDestroy {
 
     effect(() => {
       const list = this.regions();
-      if (list.length && this.map) this.syncMarkers(list);
+      if (!list.length || !this.map) return;
+      this.syncMarkers(list);
+      this.applyPendingGeo();
     });
   }
 
   ngAfterViewInit(): void {
     this.initMap();
     this.loadGeo();
+    this.tryGeolocate();
   }
 
   ngOnDestroy(): void {
@@ -161,13 +162,15 @@ export class RussiaMapComponent implements AfterViewInit, OnDestroy {
     const hostEl = this.host().nativeElement;
 
     this.map = L.map(hostEl, {
-      zoomControl: true,
+      zoomControl: false,
       attributionControl: true,
       worldCopyJump: false,
-      minZoom: 3,
+      minZoom: 2.75,
       maxZoom: 7,
       zoomSnap: 0.25,
-    }).setView([62, 95], 3);
+    }).setView([57, 95], 2.75);
+
+    L.control.zoom({ position: 'topright' }).addTo(this.map);
 
     // По умолчанию Leaflet 1.9+ добавляет к атрибуции флаг Украины — убираем,
     // оставляем нейтральный «Leaflet».
@@ -213,6 +216,7 @@ export class RussiaMapComponent implements AfterViewInit, OnDestroy {
         this.syncMarkers(this.regions());
         this.fitToRussia(russiaOutline);
         this.loading.set(false);
+        this.applyPendingGeo();
       },
       error: () => this.loading.set(false),
     });
@@ -323,6 +327,72 @@ export class RussiaMapComponent implements AfterViewInit, OnDestroy {
     );
     this.map.fitBounds(bounds, { animate: false });
     this.map.setMaxBounds(bounds.pad(0.1));
+  }
+
+  private tryGeolocate(): void {
+    if (!navigator.geolocation) {
+      this.geoPos = 'fallback';
+      this.applyPendingGeo();
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        if (this.geoHandled) return;
+        const regions = this.regions();
+        if (regions.length && this.map) {
+          this.geoHandled = true;
+          this.zoomToNearest(coords.latitude, coords.longitude, regions);
+        } else {
+          this.geoPos = { lat: coords.latitude, lon: coords.longitude };
+          this.applyPendingGeo();
+        }
+      },
+      () => {
+        if (!this.geoHandled) {
+          this.geoPos = 'fallback';
+          this.applyPendingGeo();
+        }
+      },
+      { timeout: 5000 },
+    );
+  }
+
+  private applyPendingGeo(): void {
+    if (this.geoHandled || this.geoPos === null || !this.map) return;
+    const regions = this.regions();
+    if (!regions.length) return;
+    this.geoHandled = true;
+    const pos = this.geoPos;
+    this.geoPos = null;
+    if (pos === 'fallback') {
+      this.zoomToMoscow(regions);
+    } else {
+      this.zoomToNearest(pos.lat, pos.lon, regions);
+    }
+  }
+
+  private zoomToNearest(lat: number, lon: number, regions: Region[]): void {
+    let best: Region | null = null;
+    let bestDist = Infinity;
+    for (const r of regions) {
+      const d = Math.hypot(r.latitude - lat, r.longitude - lon);
+      if (d < bestDist) {
+        bestDist = d;
+        best = r;
+      }
+    }
+    if (best) {
+      this.regionSelected.emit(best.id);
+      this.map?.setView([best.latitude, best.longitude], 5, { animate: false });
+    }
+  }
+
+  private zoomToMoscow(regions: Region[]): void {
+    const moscow = regions.find((r) => r.name.toLowerCase().includes('московская'));
+    if (moscow) {
+      this.regionSelected.emit(moscow.id);
+      this.map?.setView([moscow.latitude, moscow.longitude], 5, { animate: false });
+    }
   }
 
   private repaintRegions(): void {

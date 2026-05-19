@@ -1,8 +1,18 @@
 <div class="page">
   <app-hero />
 
+  <app-how-it-works />
+
   <div class="region-map-block">
-    <app-region-hero [regions]="regions()" [(value)]="regionId" />
+    <div class="region-controls-bar">
+      <div class="region-controls-bar__left">
+        <app-region-hero [regions]="regions()" [(value)]="regionId" />
+        <div class="region-controls-bar__shift">
+          <app-shift-selector [(value)]="shiftHours" />
+        </div>
+      </div>
+      <app-sleep-schedule [(wakeTime)]="wakeTime" [(sleepTime)]="sleepTime" />
+    </div>
     <div class="region-map-block__main">
       <app-russia-map
         [heatmap]="heatmap()"
@@ -12,7 +22,7 @@
       />
       <aside class="region-map-block__stats">
         @if (analysis(); as a) {
-          <p class="region-map-block__stats-title">{{ periodLabel() }}</p>
+          <p class="region-map-block__stats-title">Результат</p>
           <app-summary-cards [analysis]="a" />
         } @else {
           <p class="region-map-block__stats-empty">
@@ -23,14 +33,11 @@
     </div>
   </div>
 
-  <section class="filters">
-    <app-wake-time-picker [(value)]="wakeTime" />
-    <app-sleep-time-picker [wakeTime]="wakeTime()" [(value)]="sleepTime" />
-    <app-period-selector [(value)]="period" />
-    <app-shift-selector [(value)]="shiftHours" />
-  </section>
-
   <section class="results">
+    <div class="results__period">
+      <app-period-selector [(value)]="period" />
+    </div>
+
     @if (isLoading() && !analysis()) {
       <p class="results__loader">⏳ Считаем световые минуты…</p>
     }
