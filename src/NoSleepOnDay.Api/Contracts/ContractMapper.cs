@@ -28,7 +28,7 @@ public static class ContractMapper
             schedule.ClampedToBounds);
     }
 
-    public static AnalysisResultDto ToDto(this AnalysisResult result)
+    public static AnalysisResultDto ToDto(this AnalysisResult result, IReadOnlyList<ShiftNeighborDto>? neighbors = null)
     {
         return new AnalysisResultDto(
             result.Region.ToDto(),
@@ -62,6 +62,7 @@ public static class ContractMapper
                     p.DayLengthMinutes,
                     p.CurrentMinutes,
                     p.ShiftedMinutes))
-                .ToList());
+                .ToList(),
+            neighbors ?? []);
     }
 }

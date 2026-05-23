@@ -112,7 +112,25 @@ public sealed class DaylightController : ControllerBase
         }
 
         var result = _analysis.Analyze(region, period, window, shiftHours);
-        return Ok(result.ToDto());
+
+        int[] neighborShifts = shiftHours switch
+        {
+            -2 => [-1],
+            -1 => [-2, 1],
+            1 => [-1, 2],
+            2 => [1],
+            _ => []
+        };
+
+        var neighbors = neighborShifts
+            .Select(s =>
+            {
+                var r = _analysis.Analyze(region, period, window, s);
+                return new ShiftNeighborDto(s, r.Delta.TotalGainMinutes, r.Delta.AvgGainPerDay);
+            })
+            .ToList();
+
+        return Ok(result.ToDto(neighbors));
     }
 
     [HttpGet("heatmap")]

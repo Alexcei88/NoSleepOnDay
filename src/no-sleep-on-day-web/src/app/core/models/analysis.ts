@@ -43,6 +43,12 @@ export interface DaylightSeriesPoint {
   shiftedMinutes: number;
 }
 
+export interface ShiftNeighbor {
+  shiftHours: number;
+  totalGainMinutes: number;
+  avgGainPerDay: number;
+}
+
 export interface AnalysisResult {
   region: Region;
   period: Period;
@@ -54,6 +60,7 @@ export interface AnalysisResult {
   optimal: OptimalSchedule;
   optimalShifted: OptimalSchedule;
   series: DaylightSeriesPoint[];
+  shiftNeighbors: ShiftNeighbor[];
 }
 
 export interface AnalysisRequest {

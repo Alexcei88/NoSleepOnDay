@@ -124,6 +124,7 @@ export class RussiaMapComponent implements AfterViewInit, OnDestroy {
     return m;
   });
 
+
   private readonly iso2ToRegion = computed<Map<string, Region>>(() => {
     const m = new Map<string, Region>();
     for (const r of this.regions()) m.set(r.iso2, r);
@@ -528,7 +529,7 @@ function shiftRing(ring: Position[]): void {
 
 function colorFor(minutes: number | undefined): string {
   if (minutes === undefined) return '#cbd5e1';
-  const hours = minutes / 60;
+  const hours = Math.abs(minutes) / 60;
   if (hours < 10) return '#15803d';
   if (hours < 30) return '#4ade80';
   if (hours < 60) return '#bbf7d0';
@@ -537,3 +538,4 @@ function colorFor(minutes: number | undefined): string {
   if (hours < 250) return '#dc2626';
   return '#7f1d1d';
 }
+

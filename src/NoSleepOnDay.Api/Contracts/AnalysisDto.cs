@@ -10,7 +10,10 @@ public sealed record AnalysisResultDto(
     DaylightDeltaDto Delta,
     OptimalScheduleDto Optimal,
     OptimalScheduleDto OptimalShifted,
-    IReadOnlyList<DaylightSeriesPointDto> Series);
+    IReadOnlyList<DaylightSeriesPointDto> Series,
+    IReadOnlyList<ShiftNeighborDto> ShiftNeighbors);
+
+public sealed record ShiftNeighborDto(int ShiftHours, int TotalGainMinutes, int AvgGainPerDay);
 
 public sealed record PeriodDto(
     string Type,
