@@ -103,12 +103,12 @@ public sealed class DaylightController : ControllerBase
                 detail: ex.Message);
         }
 
-        if (shiftHours is not (-2 or -1 or 1 or 2))
+        if (shiftHours is not (-2 or -1 or 0 or 1 or 2))
         {
             return Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Invalid shiftHours",
-                detail: "shiftHours must be one of -2, -1, 1, 2.");
+                detail: "shiftHours must be one of -2, -1, 0, 1, 2.");
         }
 
         var result = _analysis.Analyze(region, period, window, shiftHours);
@@ -116,9 +116,10 @@ public sealed class DaylightController : ControllerBase
         int[] neighborShifts = shiftHours switch
         {
             -2 => [-1],
-            -1 => [-2, 1],
-            1 => [-1, 2],
-            2 => [1],
+            -1 => [-2, 0],
+            0  => [-1, 1],
+            1  => [0, 2],
+            2  => [1],
             _ => []
         };
 
@@ -176,12 +177,12 @@ public sealed class DaylightController : ControllerBase
                 detail: ex.Message);
         }
 
-        if (shiftHours is not (-2 or -1 or 1 or 2))
+        if (shiftHours is not (-2 or -1 or 0 or 1 or 2))
         {
             return Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Invalid shiftHours",
-                detail: "shiftHours must be one of -2, -1, 1, 2.");
+                detail: "shiftHours must be one of -2, -1, 0, 1, 2.");
         }
 
         // period/window — unused here; the service rebuilds them from validated primitives,

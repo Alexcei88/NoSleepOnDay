@@ -1,26 +1,13 @@
 import { Component, model } from '@angular/core';
 
-export type ShiftHours = -2 | -1 | 1 | 2;
+export type ShiftHours = -2 | -1 | 0 | 1 | 2;
 
-interface Btn {
-  value: ShiftHours;
-  label: string;
-  sep?: never;
-}
-interface Sep {
-  sep: true;
-  label: string;
-  value?: never;
-}
-type Item = Btn | Sep;
+const ITEMS: ShiftHours[] = [-2, -1, 0, 1, 2];
 
-const ITEMS: Item[] = [
-  { value: -2, label: '−2 ч' },
-  { value: -1, label: '−1 ч' },
-  { sep: true, label: 'без сдвига' },
-  { value: 1, label: '+1 ч' },
-  { value: 2, label: '+2 ч' },
-];
+function shiftLabel(h: ShiftHours): string {
+  if (h === 0) return '0';
+  return `${h > 0 ? '+' : '−'}${Math.abs(h)} ч`;
+}
 
 @Component({
   selector: 'app-shift-selector',
@@ -29,17 +16,14 @@ const ITEMS: Item[] = [
     <div class="shift-block">
       <span class="shift-block__title">Сдвиг часового пояса</span>
       <div class="shift-block__row">
-        @for (item of items; track $index) {
-          @if (item.sep) {
-            <span class="shift-sep">{{ item.label }}</span>
-          } @else {
-            <button
-              type="button"
-              class="shift-btn"
-              [class.shift-btn--active]="value() === item.value"
-              (click)="value.set(item.value!)"
-            >{{ item.label }}</button>
-          }
+        @for (item of items; track item) {
+          <button
+            type="button"
+            class="shift-btn"
+            [class.shift-btn--active]="value() === item"
+            [class.shift-btn--zero]="item === 0"
+            (click)="value.set(item)"
+          >{{ label(item) }}</button>
         }
       </div>
     </div>
@@ -101,18 +85,13 @@ const ITEMS: Item[] = [
       box-shadow: 0 2px 8px rgba(30, 42, 110, 0.28);
     }
 
-    .shift-sep {
-      font-size: 0.67rem;
-      color: var(--color-text-muted);
-      font-style: italic;
-      opacity: 0.6;
-      padding: 0 3px;
-      white-space: nowrap;
-      user-select: none;
+    .shift-btn--zero {
+      border-style: dashed;
     }
   `],
 })
 export class ShiftSelectorComponent {
   readonly value = model.required<ShiftHours>();
   protected readonly items = ITEMS;
+  protected readonly label = shiftLabel;
 }
